@@ -9,6 +9,11 @@ const express = require('express')
 const app = express()
 
 
+app.get('/recieve_meeting_start_event', (req, res) => {
+    console.log('Request Object: ', req)
+    console.log('Request Body: ', req.body)
+})
+
 app.get('/', (req, res) => {
 
     // Step 1: 
@@ -40,6 +45,48 @@ app.get('/', (req, res) => {
                 // Send a request to get your user information using the /me context
                 // The `/me` context restricts an API call to the user the token belongs to
                 // This helps make calls to user-specific endpoints instead of storing the userID
+                
+                req_body = {
+                    "page_url": "https://live-meeting-analysis.devfactory.com/meetings/8DuPg79xkDrk",
+                    "stream_key": "Udww5r4RHyMwqdJFjNdesF",
+                    "stream_url": "rtmp://54.80.102.113/ivs"
+                }
+
+                request.patch({
+                    headers: {'content-type' : 'application/json'},
+                    url: 'https://api.zoom.us/v2/meetings/93096665765/livestream',
+                    body: JSON.stringify(req_body)
+                }, (error, response, body) => {
+                    if (error) {
+                        console.log('API Response Error: ', error)
+                    }
+                    else {
+                        console.log('Live Stream update API Call');
+                        console.log(body);
+                    }
+                }).auth(null, null, true, body.access_token);
+                
+                req_body = {
+                    "action": "start",
+                    "settings": {
+                        "active_speaker_name": true,
+                        "display_name": "Utsav"
+                    }
+                }
+
+                request.patch({
+                    headers: {'content-type' : 'application/json'},
+                    url: 'https://api.zoom.us/v2/meetings/93096665765/livestream/status',
+                    body: JSON.stringify(req_body)
+                }, (error, response, body) => {
+                    if (error) {
+                        console.log('API Response Error: ', error)
+                    }
+                    else {
+                        console.log('Start live stream');
+                        console.log(body);
+                    }
+                }).auth(null, null, true, body.access_token);
 
                 request.get('https://api.zoom.us/v2/users/me', (error, response, body) => {
                     if (error) {
